@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<project default="unpacked_chrome">
+	<property name="projectname" value="minpos-post"/>
+	<loadfile property="version" srcfile="version.txt"/>
+	<property name="dist" value="dist"/>
+	<property name="js" value="js"/>
+		
+	<target name="unpacked_chrome">
+		<property name="long" value="chrome"/>
+		<property name="contents" value="${dist}/${long}/${projectname}"/>
+		<delete dir="${dist}/${long}"/>
+		<mkdir dir="${contents}"/>
+		<copy todir="${contents}">
+			<fileset dir="${js}/${long}"/>
+		</copy>
+		<replaceregexp match="@VERSION" replace="${version}" flags="g" byline="true" file="${contents}/manifest.json"/>
+	</target>
+	
+	<target name="package_chrome" depends="unpacked_chrome">
+		<property name="long" value="chrome"/>
+		<property name="short" value="crx"/>
+		<property name="contents" value="${dist}/${long}/${projectname}"/>
+		<delete>
+			<fileset dir="${dist}">
+				<include name="${projectname}_${short}_${version}.zip"/>
+			</fileset>
+		</delete>
+		<zip destfile="${dist}/${projectname}_${short}_${version}.zip">
+			<fileset dir="${dist}/${long}/${projectname}" includes="**"/>
+		</zip>
+	</target>
+</project>

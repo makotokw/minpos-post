@@ -1,0 +1,6 @@
+{
+	"APP_TITLE": {"message":"みんぽすぽすと"},
+	"APP_DESCRIPTION": {"message":"表示中のページを元にみんぽすのレビュー登録ページを開いて、タイトルとURLを自動で入力します。"},
+	"NOT_SUPPORTED_URL": {"message":"このURLは対応していません"},
+	"_": {"message":""}
+}

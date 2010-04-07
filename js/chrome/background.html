@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<script src="jquery.min.js"></script>
+<script>
+(function($){
+	var submitUrl = 'https://www.minpos.com/index.php?pg=post&start=true'; 
+	var tabs = chrome.tabs, ba = chrome.browserAction, crx = chrome.extension, i18n = chrome.i18n;
+	var postData = {}
+
+	function canHandle(url) {
+		if (!url) return false;
+		if (url.indexOf('http://') == -1 && url.indexOf('https://') == -1) return false;
+		if (url.indexOf('http://www.minpos.com') == 0 || url.indexOf('https://www.minpos.com') == 0) return false;
+		return true;
+	}
+	
+	function onTabChanged(tab) {
+		var ret = canHandle(tab.url),
+			icon = ret ? 'icon.png' : 'icon_glay.png',
+			title = i18n.getMessage(ret ? 'APP_TITLE' : 'NOT_SUPPORTED_URL');
+		ba.setIcon({path:icon});
+		ba.setTitle({title: title});
+	}
+	
+	tabs.onSelectionChanged.addListener(function(tabId, selectInfo){
+		tabs.get(tabId, onTabChanged);
+	})
+	tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+		onTabChanged(tab);
+	});
+	
+	ba.onClicked.addListener(function(tab) {
+		var title = tab.title, url = tab.url;
+		if (canHandle(url)) {
+			postData = {url:url, title:title};
+			chrome.tabs.create({
+				url:submitUrl,
+				selected:true
+			});
+		}
+	})
+	crx.onConnect.addListener(function(port) {
+		if (port.name == "minpospost") {
+			port.onMessage.addListener(function(msg) {
+				if (msg.fetchData) {
+					port.postMessage(postData);
+					postData = {};
+				}
+			});
+		}
+	});
+	
+	$(document).ready(function() {
+		tabs.getSelected(onTabChanged);
+	});
+})(jQuery);
+</script>
+</head>
+<body></body>
+</html>
